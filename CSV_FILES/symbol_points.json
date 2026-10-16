@@ -1,0 +1,116 @@
+{
+    "AUDCADc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.0
+    },
+    "AUDJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.0
+    },
+    "AUDUSDc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.0
+    },
+    "BTCUSDc": {
+        "point": 0.01,
+        "digits": 2,
+        "trade_tick_size": 0.01,
+        "trade_tick_value": 0.0
+    },
+    "CADJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.0
+    },
+    "ETHUSDc": {
+        "point": 0.01,
+        "digits": 2,
+        "trade_tick_size": 0.01,
+        "trade_tick_value": 0.0
+    },
+    "EURJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.0
+    },
+    "EURUSDc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.0
+    },
+    "EURGBPc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.0
+    },
+    "GBPCADc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.7071085623775818
+    },
+    "GBPJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.6357036603816764
+    },
+    "GBPUSDc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 1.0
+    },
+    "NZDJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.6357036603816764
+    },
+    "NZDUSDc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 1.0
+    },
+    "USDCADc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 0.7071085623775818
+    },
+    "USDCHFc": {
+        "point": 1e-05,
+        "digits": 5,
+        "trade_tick_size": 1e-05,
+        "trade_tick_value": 1.2068403712240985
+    },
+    "USDJPYc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.6357036603816764
+    },
+    "XAGUSDc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 5.0
+    },
+    "XAUUSDc": {
+        "point": 0.001,
+        "digits": 3,
+        "trade_tick_size": 0.001,
+        "trade_tick_value": 0.1
+    }
+}
