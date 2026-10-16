@@ -1,4 +1,4 @@
-ADVANCED AI TRADING BOT
+ADVANCED AI FOREX TRADING BOT
 
 An advanced Python-based forex trading system that combines machine learning, automated strategy evaluation, probability-based trade selection, and MetaTrader 5 integration to develop and execute algorithmic trading strategies across 19 financial instruments.
 
