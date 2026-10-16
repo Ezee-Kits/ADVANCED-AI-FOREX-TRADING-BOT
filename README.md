@@ -1,10 +1,10 @@
-ADVANCED AI FOREX TRADING BOT
+# ADVANCED AI TRADING BOT
 
 An advanced Python-based forex trading system that combines machine learning, automated strategy evaluation, probability-based trade selection, and MetaTrader 5 integration to develop and execute algorithmic trading strategies across 19 financial instruments.
 
 The system uses LightGBM multiclass classification to analyze market data and classify potential price movements. It includes a complete workflow for dataset preparation, feature engineering, model training, threshold optimization, forward testing, and live trade execution.
 
-Overview
+## Overview
 
 The ADVANCED AI TRADING BOT project is designed to explore the application of machine learning to algorithmic forex trading through a structured pipeline that covers model development, strategy evaluation, and automated execution.
 
@@ -27,37 +27,39 @@ Its major components include:
 - Spread filtering and currency correlation checks.
 - Multiprocessing-based execution across multiple instruments.
 
-Supported Trading Instruments
+## Supported Trading Instruments
 
 The system contains 19 trained models covering the following instruments:
 
-No.| Trading Instrument
-1| AUDCAD
-2| AUDJPY
-3| AUDUSD
-4| BTCUSD
-5| CADJPY
-6| ETHUSD
-7| EURGBP
-8| EURJPY
-9| EURUSD
-10| GBPCAD
-11| GBPJPY
-12| GBPUSD
-13| NZDJPY
-14| NZDUSD
-15| USDCAD
-16| USDCHF
-17| USDJPY
-18| XAGUSD
-19| XAUUSD
+| No. | Trading Instrument |
+|---:|---|
+| 1 | AUDCAD |
+| 2 | AUDJPY |
+| 3 | AUDUSD |
+| 4 | BTCUSD |
+| 5 | CADJPY |
+| 6 | ETHUSD |
+| 7 | EURGBP |
+| 8 | EURJPY |
+| 9 | EURUSD |
+| 10 | GBPCAD |
+| 11 | GBPJPY |
+| 12 | GBPUSD |
+| 13 | NZDJPY |
+| 14 | NZDUSD |
+| 15 | USDCAD |
+| 16 | USDCHF |
+| 17 | USDJPY |
+| 18 | XAGUSD |
+| 19 | XAUUSD |
 
-Note: The exact symbol names used by MetaTrader 5 depend on the broker. Some brokers append suffixes or use different symbol naming conventions.
+**Note:** The exact symbol names used by MetaTrader 5 depend on the broker. Some brokers append suffixes or use different symbol naming conventions.
 
-Project Architecture
+## Project Architecture
 
 The project is organized into three primary directories.
 
+```text
 ADVANCED-AI-TRADING-BOT/
 │
 ├── ALL_MODELS/
@@ -115,12 +117,13 @@ ADVANCED-AI-TRADING-BOT/
     ├── MULTICLASS_TRAIN_MODEL.py
     ├── SYMBOL_DATA.py
     └── SYMBOL_POINTS.py
+```
 
 The directory structure above illustrates the organization of the project. The exact filenames, file extensions, and dataset names may differ depending on the files included in the repository.
 
-Core Components
+# Core Components
 
-1. ALL_MODELS
+## 1. ALL_MODELS
 
 This directory contains the trained machine learning models used by the trading system.
 
@@ -130,7 +133,7 @@ The model bundles contain the trained estimator, selected input features, and ta
 
 The system loads the appropriate model according to the selected instrument and configured timeframe.
 
-2. CSV_FILES
+## 2. CSV_FILES
 
 This directory contains the historical market datasets used for model development and strategy evaluation.
 
@@ -138,43 +141,43 @@ The datasets support the preparation of training and testing data, feature engin
 
 The quality and representativeness of these datasets are important factors in evaluating the reliability of the resulting trading strategies.
 
-3. PY_FILES
+## 3. PY_FILES
 
 This directory contains the Python scripts responsible for data acquisition, preprocessing, model development, evaluation, and trading execution.
 
-CONNECT_MT5.py
+### CONNECT_MT5.py
 
 Establishes a connection to MetaTrader 5 for connectivity testing and basic integration checks.
 
-FOREX_TRADING.py
+### FOREX_TRADING.py
 
 Acts as the main controller for the trading system.
 
 It coordinates the execution of the live-trading engine and manages the system's overall operation across configured instruments.
 
-func.py
+### func.py
 
 Contains shared helper functions used throughout the project.
 
 These functions support trading operations, data processing, risk calculations, model prediction, trade management, and other reusable tasks.
 
-GET_MT5_DATASET.py
+### GET_MT5_DATASET.py
 
 Retrieves historical market data from MetaTrader 5 for dataset preparation and analysis.
 
-LOAD_MODEL_INFOS.py
+### LOAD_MODEL_INFOS.py
 
 Loads trained model information for inspection and testing.
 
 It helps examine saved models, their selected features, and their associated target settings.
 
-MT5_DATA_CLEANING.py
+### MT5_DATA_CLEANING.py
 
 Cleans and structures market data downloaded from MetaTrader 5.
 
 It prepares the raw datasets for subsequent feature engineering, training, and evaluation.
 
-MULTICLASS_FIND_THRESHOLD.py
+### MULTICLASS_FIND_THRESHOLD.py
 
 Evaluates candidate probability thresholds to identify settings suitable for further trading-strategy evaluation.
 
@@ -182,7 +185,7 @@ Depending on the evaluation configuration, the analysis can include metrics such
 
 The objective is to assess how different thresholds affect trade selection and strategy performance.
 
-MULTICLASS_FORWARD_TEST.py
+### MULTICLASS_FORWARD_TEST.py
 
 Performs forward testing using selected threshold settings.
 
@@ -190,7 +193,7 @@ It evaluates simulated trading outcomes and produces information that can be use
 
 Forward-test results should not be interpreted as proof of future profitability or as equivalent to verified live-trading results.
 
-MULTICLASS_LIVE_TRADE.py
+### MULTICLASS_LIVE_TRADE.py
 
 Contains the main live-trading execution logic.
 
@@ -210,9 +213,9 @@ Its responsibilities include:
 - Managing partial profit-taking.
 - Adjusting stop-loss levels according to configured trade-management rules.
 
-The engine is designed to work with the shared helper functions in "func.py".
+The engine is designed to work with the shared helper functions in `func.py`.
 
-MULTICLASS_TRAIN_MODEL.py
+### MULTICLASS_TRAIN_MODEL.py
 
 Contains the model-development pipeline.
 
@@ -229,32 +232,33 @@ Its responsibilities include:
 - Model evaluation and validation.
 - Saving trained models and associated configuration information.
 
-SYMBOL_DATA.py
+### SYMBOL_DATA.py
 
 Provides instrument-specific information used by the system, such as balance-related settings, pip information, spread characteristics, minimum distance constraints, and volume-related properties, depending on the implementation.
 
-SYMBOL_POINTS.py
+### SYMBOL_POINTS.py
 
 Retrieves or defines symbol-specific trading properties, including price precision, point size, tick size, and tick value.
 
 These properties support price calculations, feature engineering, and trade-risk calculations.
 
-Machine Learning Architecture
+# Machine Learning Architecture
 
-LightGBM Multiclass Classification
+## LightGBM Multiclass Classification
 
 The system uses LightGBM to classify market observations into five price-movement categories.
 
 Rather than producing only a binary BUY or SELL prediction, the model estimates a probability distribution over the five classes.
 
-Five-Class Target Structure
+## Five-Class Target Structure
 
-Class| Label| Interpretation
-0| Strong DOWN| Stronger dominant downward excursion
-1| Moderate DOWN| Moderate dominant downward excursion
-2| Small / NEUTRAL| Smaller or ambiguous dominant movement
-3| Moderate UP| Moderate dominant upward excursion
-4| Strong UP| Stronger dominant upward excursion
+| Class | Label | Interpretation |
+|---:|---|---|
+| 0 | Strong DOWN | Stronger dominant downward excursion |
+| 1 | Moderate DOWN | Moderate dominant downward excursion |
+| 2 | Small / NEUTRAL | Smaller or ambiguous dominant movement |
+| 3 | Moderate UP | Moderate dominant upward excursion |
+| 4 | Strong UP | Stronger dominant upward excursion |
 
 The target-generation process examines future price excursions over a configured prediction horizon.
 
@@ -262,41 +266,49 @@ The classification thresholds are derived from the movement distribution using c
 
 The target describes historical future price behavior according to the target-generation rules. It does not guarantee that a particular trade will reach its take-profit before its stop-loss.
 
-Probability-Based Directional Thresholds
+## Probability-Based Directional Thresholds
 
 The live-trading engine combines the probabilities of the directional classes.
 
 The UP probability is calculated as:
 
+```python
 up_probability = (
     all_class_probabilities[3]
     + all_class_probabilities[4]
 )
+```
 
 The DOWN probability is calculated as:
 
+```python
 down_probability = (
     all_class_probabilities[0]
     + all_class_probabilities[1]
 )
+```
 
 The neutral class remains separate:
 
+```python
 neutral_probability = all_class_probabilities[2]
+```
 
 The configured threshold determines whether the combined directional probability qualifies for further trade-entry evaluation.
 
 For example, with a threshold of 0.50:
 
+```python
 if up_probability >= 0.50:
     # UP direction qualifies for further evaluation
 
 elif down_probability >= 0.50:
     # DOWN direction qualifies for further evaluation
+```
 
 The threshold is a configurable strategy parameter, not a guarantee of trade success.
 
-Predicted Class and TP/SL Calculation
+## Predicted Class and TP/SL Calculation
 
 The system distinguishes between directional probability and the predicted class used to calculate movement-based trade distances.
 
@@ -312,7 +324,7 @@ The resulting distances are then adjusted using the configured TP and SL ratios.
 
 Actual trading outcomes still depend on execution prices, spread, market behavior, and trade-management rules.
 
-Strategy Evaluation
+# Strategy Evaluation
 
 The project includes dedicated scripts for threshold evaluation and forward testing.
 
@@ -331,7 +343,7 @@ A high classification score or win rate alone is insufficient to establish profi
 
 Threshold selection should be performed without using the final evaluation period to tune the strategy. This helps reduce the risk of overfitting.
 
-Risk Management and Trade Execution
+# Risk Management and Trade Execution
 
 The live-trading engine includes configurable mechanisms intended to manage execution and trading risk.
 
@@ -351,7 +363,7 @@ The behavior of these mechanisms depends on the actual implementation, broker sp
 
 Risk controls can reduce certain risks, but they cannot eliminate market risk, slippage, execution failures, or losses.
 
-Technology Stack
+# Technology Stack
 
 The project uses Python and the following technologies, where applicable to the installed environment:
 
@@ -367,9 +379,9 @@ The project uses Python and the following technologies, where applicable to the 
 
 Additional dependencies may be required by individual scripts.
 
-Installation and Setup
+# Installation and Setup
 
-Prerequisites
+## Prerequisites
 
 Before running the project, prepare the following:
 
@@ -381,7 +393,7 @@ Before running the project, prepare the following:
 
 The MetaTrader 5 terminal must be configured correctly for the intended account and trading environment.
 
-Install Dependencies
+## Install Dependencies
 
 Create and activate a virtual environment if appropriate for your setup.
 
@@ -389,13 +401,15 @@ Install the packages required by the scripts.
 
 For example:
 
+```bash
 pip install MetaTrader5 pandas numpy scikit-learn lightgbm optuna shap joblib
+```
 
-Other dependencies may be required depending on the functions implemented in "func.py" and the remaining project scripts.
+Other dependencies may be required depending on the functions implemented in `func.py` and the remaining project scripts.
 
-For reproducibility, use compatible package versions and maintain a dependency file such as "requirements.txt".
+For reproducibility, use compatible package versions and maintain a dependency file such as `requirements.txt`.
 
-Configure the Project
+## Configure the Project
 
 Before execution:
 
@@ -409,7 +423,7 @@ Before execution:
 
 Do not place account passwords, API credentials, or other secrets directly in publicly accessible source files.
 
-Running the System
+## Running the System
 
 The exact execution commands depend on the entry points and import structure used in the project.
 
@@ -426,33 +440,33 @@ The general workflow is:
 
 The scripts should be executed from a working directory consistent with their file paths and imports.
 
-Important Considerations
+# Important Considerations
 
-Broker Compatibility
+## Broker Compatibility
 
 Different brokers may use different symbol names, contract specifications, spreads, tick values, and minimum trade volumes.
 
 Verify these properties before using the system with a new broker.
 
-Model and Dataset Compatibility
+## Model and Dataset Compatibility
 
 A trained model must receive the features expected during training, in the correct order and with compatible data types.
 
 Using a model with incompatible feature calculations or a mismatched dataset can invalidate its predictions.
 
-Forward Testing Versus Live Trading
+## Forward Testing Versus Live Trading
 
 Forward testing is useful for evaluating a strategy under defined simulation assumptions, but it does not guarantee that live execution will produce identical results.
 
 Differences can arise from spreads, slippage, market execution, timing, broker rules, and other conditions.
 
-Model Reproducibility
+## Model Reproducibility
 
 Model performance can depend on the training dataset, target-generation parameters, selected features, package versions, and training configuration.
 
 Retain the relevant settings and evaluation records when retraining models.
 
-Disclaimer
+# Disclaimer
 
 This project is provided for educational, research, and software-development purposes.
 
@@ -462,9 +476,9 @@ The software may place orders through MetaTrader 5 when configured to do so. Use
 
 Use appropriate testing and risk controls. The project is not financial advice, and the author does not guarantee trading performance or protection against financial losses.
 
-Author
+# Author
 
-Ezee Kits (Peter)
+**Ezee Kits (Peter)**
 
 Electrical and Electronics Engineer | Python Developer
 
@@ -477,8 +491,8 @@ Areas of interest:
 - Data Engineering
 - Artificial Intelligence
 
-GitHub: "Ezee-Kits" https://github.com/Ezee-Kits
+GitHub: [Ezee-Kits](https://github.com/Ezee-Kits)
 
 Portfolio: https://ezee-kits-portfolio.onrender.com/
 
-YouTube: "@EzeeKits" httpsttpsttps://www.youtube.com/@EzeeKits
+YouTube: [@EzeeKits](https://www.youtube.com/@EzeeKits)
