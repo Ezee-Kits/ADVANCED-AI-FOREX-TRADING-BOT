@@ -18,8 +18,6 @@ print("[[GOOD]] MT5 initialized successfully")
 
 
 
-
-
 def load_model(CD_TIME, SYMBOL,TARGET_NAME, MODEL_FOLDER, NUM_CLASSES):
 
     symbol_normalized = normalize_symbol(symbol=SYMBOL)
@@ -81,16 +79,18 @@ def FOREX_TRADING(SYMBOL, logger):
 
     NUM_CLASSES = 5
 
-    risk_percent = 0.01
+    risk_percent = 1
 
     SL_RATIO = 1.0
     TP_RATIO = 1.0
 
-
-    W_threshold = 0.5 # SAMPLE TO BE REMOVED LATER ON
+    W_threshold = 0.20 # SAMPLE TO BE REMOVED LATER ON
+    HISTORY_THRESHOLD = 0.20 # SAMPLE TO BE REMOVED LATER ON
 
     up_classes = [3,4]
     down_classes = [0,1]
+
+    LAST_NUM = 3
 
     MODEL_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"ALL_MODELS")
     MODEL = load_model(CD_TIME=CD_TIME, SYMBOL=SYMBOL, MODEL_FOLDER=MODEL_FOLDER, 
@@ -99,13 +99,66 @@ def FOREX_TRADING(SYMBOL, logger):
     try:
         while True:
 
-            df_info = MULTICLASS_DATA_PREDICTION(mt5=mt5, SYMBOL=SYMBOL, MODEL=MODEL, NUM_CLASSES=NUM_CLASSES)
 
+            positions = mt5.positions_get(symbol=SYMBOL)
+
+            if positions is None:
+                error = mt5.last_error()
+                logger.error(f"Failed to fetch positions for {SYMBOL}: {error}. Skipping new entries for safety.")
+
+            else:
+                buy_positions = [ p for p in positions if p.type == mt5.ORDER_TYPE_BUY]
+                sell_positions = [ p for p in positions if p.type == mt5.ORDER_TYPE_SELL]
+
+                has_buy = len(buy_positions) > 0
+                has_sell = len(sell_positions) > 0
+                has_open_trade = has_buy or has_sell
+
+                if has_buy:
+                    logger.info(f"[[WARNING]] BUY exists for {SYMBOL}")
+
+                if has_sell:
+                    logger.info(f"[[WARNING]] SELL exists for {SYMBOL}")
+
+                if has_open_trade:
+                    logger.info(f"[[GOOD]] Existing position detected for {SYMBOL}. Starting position management." )
+
+                    while True:
+                        logger.info(f"CURRENTLY HANDLING TP/SL + PARTIAL PROFIT EXECUTION FOR {SYMBOL}")
+
+                        output = MULTICLASS_MOVE_SL_AND_PARTIAL_CLOSE(mt5=mt5,SYMBOL=SYMBOL,MODEL=MODEL,NUM_CLASSES=NUM_CLASSES)
+
+                        if output == 1:
+                            logger.info("TP/SL + PARTIAL CONDITION MET")
+                            break
+
+                        time.sleep(2)
+
+            logger.info(f" \n \n \n ")
+            df_info = MULTICLASS_DATA_PREDICTION(mt5=mt5, SYMBOL=SYMBOL, MODEL=MODEL, NUM_CLASSES=NUM_CLASSES, LAST_NUM=LAST_NUM)
+            
             class_probability = df_info["predicted_probability"]
             median_movement_pct = df_info["median_movement_pct"]/100
             predicted_class = df_info["predicted_class"]
             predicted_direction = df_info["predicted_direction"]
+
             df = df_info["Data_Frame"]
+
+            history = df_info["historical_predictions"]
+
+            history_up = history["UP_PROBABILITY"].sum()
+            history_down = history["DOWN_PROBABILITY"].sum()
+
+            history_up_avg = (history_up - history_down) / len(history)
+            history_down_avg = (history_down - history_up) / len(history)
+
+            logger.info(
+                f"\n{'=' * 100}\n"
+                f"[{SYMBOL}] HISTORY PREDICTION PROBABILITIES\n"
+                f"{'=' * 100}\n"
+                f"{history[['Date', 'UP_PROBABILITY', 'NEUTRAL_PROBABILITY', 'DOWN_PROBABILITY', 'PREDICTED_CLASS', 'PREDICTED_PROBABILITY']].to_string(index=False)}\n"
+                f"{'=' * 100}"
+            )
 
             all_class_probabilities = df_info["class_probabilities"]
 
@@ -130,35 +183,8 @@ def FOREX_TRADING(SYMBOL, logger):
             if spread_points > max_spread_points:
                 logger.info(f"[[WARNING]] Spread too high: {spread_points:.2f} points, skipping trade")
                 continue
-            
-            positions = mt5.positions_get(symbol=SYMBOL)
+        
 
-            if positions is None:
-                logger.info("[[WARNING]] Error fetching positions")
-                has_open_trade = False
-                has_buy = False
-                has_sell = False
-
-            elif len(positions) == 0:
-                has_open_trade = False
-                has_buy = False
-                has_sell = False
-
-            else:
-                buy_positions = [p for p in positions if p.type == mt5.ORDER_TYPE_BUY]
-                sell_positions = [p for p in positions if p.type == mt5.ORDER_TYPE_SELL]
-
-                has_buy = len(buy_positions) > 0
-                has_sell = len(sell_positions) > 0
-                has_open_trade = has_buy or has_sell   # [[GOOD]] FIX
-
-                if has_buy:
-                    logger.info("[[WARNING]] BUY exists")
-
-                if has_sell:
-                    logger.info("[[WARNING]] SELL exists")
-
-                    
             account_info = mt5.account_info()
             balance = account_info.balance
 
@@ -183,27 +209,36 @@ def FOREX_TRADING(SYMBOL, logger):
             bid_price : {bid_price}
             spread    : {spread}
 
-            PREDICTED CLASS  : {predicted_class}
+            PREDICTED CLASS  :    {predicted_class}
             PREDICTED DIRECTION : {predicted_direction}
-            CLASS PROBABILITY : {class_probability*100}%
+            CLASS PROBABILITY :   {class_probability*100}%
 
             ACTUAL MEDIAN MOVEMENT PERCENTAGE : {df_info["median_movement_pct"]:.4f}%
             USED MEDIAN MOVEMENT FRACTION : {median_movement_pct:.8f}
 
             up_probability   : {up_probability:.2%}
             down_probability : {down_probability:.2%}
+            probability_difference : {abs(up_probability - down_probability):.2%}
 
             ----------------------------------------------------------------------------------
             all_class_probabilities : {all_class_probabilities}
             ----------------------------------------------------------------------------------
 
-            ========================================================================
+            ============================== [[ HISTORY INFO ]] ==========================================
+            history_up :         {history_up:.2%}
+            history_down :       {history_down:.2%}
+            history_difference : {abs(history_up - history_down):.2%}
+            
+            history_up_avg :    {history_up_avg:.2%}
+            history_down_avg :    {history_down_avg:.2%}
+
+            ============================================================================================
             ''')
 
 
             if not has_open_trade:
                 ##================================= MAIN DIRECTION TRADING ==================================================
-                if up_probability >= W_threshold and int(predicted_class) in up_classes:
+                if (up_probability - down_probability) >= W_threshold and int(predicted_class) in up_classes and history_up_avg >= HISTORY_THRESHOLD: 
 
                     logger.info('CHECKING FOR BUY ENTRY LOGIC')
 
@@ -247,13 +282,14 @@ def FOREX_TRADING(SYMBOL, logger):
                             logger.info(f"BUY ORDER PLACED & RESULT: {result} ")
 
                             MULTICLASS_LOG_TRADE(mt5=mt5,symbol=SYMBOL,direction="BUY",entry_price=entry_buy,SL=SL_buy,TP=TP_buy,lot_size=lot_size,
-                                model_class=predicted_class,class_direction=predicted_direction,class_proba=class_probability,order_result=result)
+                                model_class=predicted_class,class_direction=predicted_direction,class_proba=class_probability,up_probability=up_probability,
+                                down_probability=down_probability,order_result=result)
                     
                     else:
                         logger.info(f'\n BUY TRADE BLOCKED DUE TO CURRENCY EXPOSER FOR : {SYMBOL} \n')
 
 
-                elif down_probability >= W_threshold  and int(predicted_class) in down_classes:
+                elif (down_probability - up_probability) >= W_threshold  and int(predicted_class) in down_classes and history_down_avg >= HISTORY_THRESHOLD:
 
                     logger.info('CHECKING FOR SELL ENTRY LOGIC')
 
@@ -296,7 +332,8 @@ def FOREX_TRADING(SYMBOL, logger):
                             logger.info(f"SELL ORDER RESULT: {result}" )
 
                             MULTICLASS_LOG_TRADE(mt5=mt5,symbol=SYMBOL,direction="SELL",entry_price=entry_sell,SL=SL_sell,TP=TP_sell,lot_size=lot_size,
-                                model_class=predicted_class,class_direction=predicted_direction,class_proba=class_probability,order_result=result)
+                                model_class=predicted_class,class_direction=predicted_direction,class_proba=class_probability,up_probability=up_probability,
+                                down_probability=down_probability,order_result=result)
                     
                     else:
                         logger.info(F'SELL TRADE BLOCKED DUE TO CURRENCY EXPOSER FOR : {SYMBOL}')
@@ -318,17 +355,6 @@ def FOREX_TRADING(SYMBOL, logger):
                         logger.info('TP/SL + PARTIAL CONDITION MET')
                         break
                     time.sleep(2)
-
-                    
-            elif has_open_trade:
-                while True:
-                    logger.info(f'CURRENTLY HANDLING TP/SL + PARTIAL PROFIT EXECUTION FOR {SYMBOL}')
-                    output = MULTICLASS_MOVE_SL_AND_PARTIAL_CLOSE(mt5=mt5, SYMBOL=SYMBOL, MODEL=MODEL, NUM_CLASSES=NUM_CLASSES)
-                    if output == 1:
-                        logger.info('TP/SL + PARTIAL CONDITION MET')
-                        break
-                    time.sleep(2)
-
 
 
     finally:
