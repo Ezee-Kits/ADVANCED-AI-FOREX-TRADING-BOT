@@ -447,7 +447,8 @@ def forex_market_open(mt5, symbol):
 
 
 
-def MULTICLASS_DATA_PREDICTION(mt5, SYMBOL,MODEL,NUM_CLASSES,extension_func=False):
+
+def MULTICLASS_DATA_PREDICTION(mt5, SYMBOL,MODEL,NUM_CLASSES,LAST_NUM=3,extension_func=False):
 
     LOGGER.info(f"\n[DATA PREDICTION ON NEW CANDLE : {SYMBOL}]\n")
 
@@ -537,6 +538,97 @@ def MULTICLASS_DATA_PREDICTION(mt5, SYMBOL,MODEL,NUM_CLASSES,extension_func=Fals
 
 
     # ============================================================
+    # HISTORICAL MODEL PREDICTIONS FOR THE LAST LAST_NUM CANDLES
+    # ============================================================
+
+
+    # # Historical candles only, excluding the current prediction candle
+    # last_preds = df.iloc[-(last_num + 1):-1]
+
+    if LAST_NUM > len(df):
+        LAST_NUM = len(df)
+        LOGGER.info(f">>> SELECTED LAST NUMBER > DF, DEFAULT BACK TO LENGHT OF DF" )
+        
+    last_preds = df.tail(LAST_NUM)
+    if last_preds.empty:
+        raise ValueError(f"[{SYMBOL}] CURRENT CANDLE IS EMPTY")
+
+    X_LAST_PRED = last_preds[MODEL_cols]
+
+    # Predict every row in the selected historical window
+    HISTORY_probabilities = MODEL_model.predict_proba(X_LAST_PRED)
+
+    if HISTORY_probabilities.shape[1] != NUM_CLASSES:
+        raise ValueError(f"[{SYMBOL}] Historical prediction returned {HISTORY_probabilities.shape[1]} classes,but {NUM_CLASSES} classes were expected.")
+
+    # Create a separate DataFrame so the original df is not modified
+    HISTORICAL_PREDICTIONS = last_preds.copy()
+
+    # Assign each class its probability for every historical candle
+    for class_index, class_id in enumerate(MODEL_classes):
+        HISTORICAL_PREDICTIONS[f"CLASS_{int(class_id)}_PROBABILITY"] = HISTORY_probabilities[:, class_index]
+
+    # Sum DOWN probabilities: Class 0 + Class 1
+    HISTORICAL_PREDICTIONS["DOWN_PROBABILITY"] = (
+        HISTORICAL_PREDICTIONS["CLASS_0_PROBABILITY"] + HISTORICAL_PREDICTIONS["CLASS_1_PROBABILITY"]
+    )
+
+    # Sum UP probabilities: Class 3 + Class 4
+    HISTORICAL_PREDICTIONS["UP_PROBABILITY"] = (
+        HISTORICAL_PREDICTIONS["CLASS_3_PROBABILITY"] + HISTORICAL_PREDICTIONS["CLASS_4_PROBABILITY"]
+    )
+
+    # Class 2 remains NEUTRAL
+    HISTORICAL_PREDICTIONS["NEUTRAL_PROBABILITY"] = (HISTORICAL_PREDICTIONS["CLASS_2_PROBABILITY"])
+
+    # Get the highest-probability predicted class for each candle
+    HISTORY_class_indices = np.argmax(HISTORY_probabilities, axis=1)
+    HISTORICAL_PREDICTIONS["PREDICTED_CLASS"] = [ int(MODEL_classes[index]) for index in HISTORY_class_indices]
+    HISTORICAL_PREDICTIONS["PREDICTED_PROBABILITY"] = (
+        HISTORY_probabilities[np.arange(len(HISTORY_probabilities)),HISTORY_class_indices]
+    )
+
+    # Map each historical prediction to its saved direction
+    HISTORICAL_PREDICTIONS["PREDICTED_DIRECTION"] = (
+        HISTORICAL_PREDICTIONS["PREDICTED_CLASS"].map(
+            lambda class_id: MODEL_SETTINGS["classes"][class_id]["direction"]
+        )
+    )
+
+    # Get the most recent row's historical directional probabilities
+    LAST_HISTORY_ROW = HISTORICAL_PREDICTIONS.iloc[-1]
+
+    historical_up_probability = float(
+        LAST_HISTORY_ROW["UP_PROBABILITY"]
+    )
+
+    historical_down_probability = float(
+        LAST_HISTORY_ROW["DOWN_PROBABILITY"]
+    )
+
+    historical_neutral_probability = float(
+        LAST_HISTORY_ROW["NEUTRAL_PROBABILITY"]
+    )
+
+    # Log the historical predictions
+    LOGGER.info(
+        f"\n"
+        f"========== HISTORICAL MODEL PREDICTIONS ==========\n"
+        f"SYMBOL                   : {SYMBOL}\n"
+        f"REQUESTED LAST NUM       : {LAST_NUM}\n"
+        f"ACTUAL ROWS CHECKED      : {len(HISTORICAL_PREDICTIONS)}\n"
+        f"--------------------------------------------------\n"
+        f"{HISTORICAL_PREDICTIONS[['Date', 'PREDICTED_CLASS', 'PREDICTED_DIRECTION', 'PREDICTED_PROBABILITY', 'DOWN_PROBABILITY', 'UP_PROBABILITY']].to_string(index=False)}\n"
+        f"--------------------------------------------------\n"
+        f"LATEST UP PROBABILITY    : {historical_up_probability:.6f}\n"
+        f"LATEST DOWN PROBABILITY  : {historical_down_probability:.6f}\n"
+        f"LATEST NEUTRAL PROB.     : {historical_neutral_probability:.6f}\n"
+        f"==================================================\n"
+    )
+
+
+
+    # ============================================================
     # GET PROBABILITY OF EACH CLASS
     # ============================================================
 
@@ -603,7 +695,17 @@ def MULTICLASS_DATA_PREDICTION(mt5, SYMBOL,MODEL,NUM_CLASSES,extension_func=Fals
         'CLASS_INFO':CLASS_INFO,
 
         "class_probabilities": class_probabilities,
+
+        # Historical predictions for the selected last_num candles
+        "historical_predictions": HISTORICAL_PREDICTIONS,
+
+        # Directional probabilities of the most recent historical row
+        "historical_up_probability": historical_up_probability,
+        "historical_down_probability": historical_down_probability,
+        "historical_neutral_probability": historical_neutral_probability,
+
     }
+
 
 
 
